@@ -72,7 +72,7 @@ data.forEach(add_name)
 var maxValue = 8794,
     minValue = 6378;
 
-var margin = {top: 15, bottom: 15, left: 50, right: 50},
+var margin = {top: 15, bottom: 50, left: 50, right: 50},
     height = 350,
     width = 800;
 
@@ -81,6 +81,14 @@ var svg = d3.select("body").append("svg")
     .attr('width', width + margin.left + margin.right)
   .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+
+d3.select("#canvas")
+  .append("input")
+  .attr("type", "checkbox")
+  .style("position", "absolute")
+  .style("top", "320")
+  .style("left", "150")
 
 var scale_height = d3.scale.linear()
     .domain([minValue, maxValue])
@@ -102,6 +110,7 @@ var scale_color = d3.scale.ordinal()
     .domain([0, 1])
     .range(["#E88347", "#F1C5AD"]);
 
+
 var scale_yAxis = d3.scale.linear()
     .domain([8794, 0])
     .range([0, height]);
@@ -114,6 +123,36 @@ svg.append("g")
     .attr("class", "y axis")
     .attr("transform", "translate(0, 0)")
     .call(yAxis);
+
+
+var scale_xAxis = d3.scale.ordinal()
+    .domain(['I Trimestre', 'II Trimestre', 'III Trimestre', 'IV Trimestre', 'I Trimestre ', 'II Trimestre ', 'III Trimestre ', 'IV Trimestre ',])
+    .rangeRoundBands([0, width], 0.1);
+
+var xAxis = d3.svg.axis()
+    .scale(scale_xAxis)
+    .orient("bottom");
+
+svg.append("g")
+    .attr("class", "x axis")
+    .attr("transform", "translate(0," + height + ")")
+    .call(xAxis);
+
+
+var scale_xAxis_2 = d3.scale.ordinal()
+    .domain(['2012', ' 2012 ', '  2012  ', '   2012   ', '2013', ' 2013 ', '  2013  ', '   2013   ',])
+    .rangeRoundBands([0, width], 0.1);
+
+var xAxis_2 = d3.svg.axis()
+    .scale(scale_xAxis_2)
+    .orient("bottom");
+
+svg.append("g")
+    .attr("class", "x axis")
+    .attr("transform", "translate(0," + String(height + 14) + ")")
+    .call(xAxis_2);
+
+svg.selectAll(".tick line").attr("y2", 0)
 
 // Data join
 var rects = svg.selectAll('rect')
@@ -155,40 +194,102 @@ var points = trimestre.selectAll("circle")
     .attr('fill', "#777777")
     .attr('class', function(d, i) { return which_class(d,i); });
 
+var text_circle = trimestre.selectAll("text")
+    .data(function(d) { return d.vector; })
+  .enter().append("text")
+    .attr("x", function(d, i) { return scale_position(i) + scale_position.rangeBand(); })
+    .attr("y", function(d) { return scale_cy(d.variation) -  7 - 2; })
+    .style("text-anchor", "middle")
+    .text(function(d) { return d.variation; })
+    .attr('class', function(d, i) { return which_class(d,i); });
+
+function get_variation(circle_data) {
+    return circle_data.variation;
+}
+
 function update_bars_orange() {
-    svg.selectAll("g")
-      .selectAll("rect.orange")
-        .attr("x", function() { return parseFloat(d3.select(this).attr("x")) + 1; })
-        .attr("width", function() { return parseFloat(d3.select(this).attr("width")) + 5; });
+    if (!providers) {
+        svg.selectAll("g")
+          .selectAll("rect.orange")
+            .transition().duration(duration)
+            .attr("x", function() { return parseFloat(d3.select(this).attr("x")) + 15; })
+            .attr("width", function() { return parseFloat(d3.select(this).attr("width")) + 8; });
+
+        svg.selectAll("g")
+          .selectAll("circle.orange")
+            .transition().duration(duration)
+            .attr("cx", function() { return parseFloat(d3.select(this).attr("cx")) + 21; });
+
+        svg.selectAll("g.g text.orange")
+            .transition().duration(duration)
+            .attr("x", function() { return parseFloat(d3.select(this).attr("x")) + 21});
+
+    } else if (providers) {
+        svg.selectAll("g")
+          .selectAll("rect.orange")
+            .transition().duration(duration)
+            .attr("x", function() { return parseFloat(d3.select(this).attr("x")) - 15; })
+            .attr("width", function() { return parseFloat(d3.select(this).attr("width")) - 8; });
+
+        svg.selectAll("g")
+          .selectAll("circle.orange")
+            .transition().duration(duration)
+            .attr("cx", function() { return parseFloat(d3.select(this).attr("cx")) - 21; });
+
+        svg.selectAll("g.g text.orange")
+            .transition().duration(duration)
+            .attr("x", function() { return parseFloat(d3.select(this).attr("x")) - 21});
+    }
+
+
 }
 
 function hide_providers() {
-    providers = false;
 
-    svg.selectAll("g")
-      .selectAll("rect.providers")
-        .transition().duration(duration)
-        .attr("width", 0);
+    if (providers) {
+        providers = false;
 
-    svg.selectAll("g")
-        .selectAll("circle.providers")
-        .transition().duration(duration)
-        .attr("r", 0);
+        svg.selectAll("g")
+          .selectAll("rect.providers")
+            .transition().duration(duration)
+            .attr("width", 0);
+
+        svg.selectAll("g")
+            .selectAll("circle.providers")
+            .transition().duration(duration)
+            .attr("r", 0);
+
+        svg.selectAll("g.g text.providers")
+            .transition().duration(duration)
+            .style("font-size", "0px");
+
+        update_bars_orange();
+    }
+
 }
 
 function show_providers() {
-    providers = true;
 
-    svg.selectAll("g")
-      .selectAll("rect.providers")
-        .transition().duration(duration)
-        .attr("width", scale_position.rangeBand());
+    if (!providers) {
+        providers = true;
 
-    if (variation) {
         svg.selectAll("g")
-          .selectAll("circle.providers")
+          .selectAll("rect.providers")
             .transition().duration(duration)
-            .attr("r", 7);
+            .attr("width", scale_position.rangeBand());
+
+        if (variation) {
+            svg.selectAll("g")
+              .selectAll("circle.providers")
+                .transition().duration(duration)
+                .attr("r", 7);
+
+            svg.selectAll("g.g text.providers")
+                .transition().duration(duration)
+                .style("font-size", "10px");
+        }
+
+        update_bars_orange();
     }
 
 }
@@ -200,6 +301,11 @@ function hide_variation() {
       .selectAll("circle")
         .transition().duration(duration)
         .attr("r", 0);
+
+    svg.selectAll("g.g text")
+        .transition().duration(duration)
+        .style("font-size", "0px");
+
 }
 
 function show_variation() {
@@ -210,11 +316,19 @@ function show_variation() {
         .transition().duration(duration)
         .attr("r", 7);
 
+    svg.selectAll("g.g text.orange")
+        .transition().duration(duration)
+        .style("font-size", "10px");
+
     if (providers) {
         svg.selectAll("g")
           .selectAll("circle.providers")
             .transition().duration(duration)
             .attr("r", 7);
+
+        svg.selectAll("g.g text.providers")
+        .transition().duration(duration)
+        .style("font-size", "10px");
     }
 }
 
@@ -224,44 +338,12 @@ $(document).ready(function() {
         gravity: 's',
         html: true,
         title: function() {
-            return 'Ingresos: <b>8746</b><br>Var. interanual: 345'; }
+            var ingresos = this.__data__.value;
+            var var_interanual = this.__data__.variation;
+            return 'Ingresos: <b>' + ingresos + '</b><br>Var. interanual: <b>' + var_interanual + '</b>'; }
     });
 });
 
-
-
-
-
-
-// var margin = {top: 15, bottom: 15, left: 50, right: 50},
-//     height = 350,
-//     width = 800;
-
-// var svg = d3.select("body").append("svg")
-//     .attr('height', height + margin.top + margin.bottom)
-//     .attr('width', width + margin.left + margin.right)
-//   .append("g")
-//     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-// svg.append("g")
-//     .attr("class", "x axis")
-//     .attr("transform", "translate(0," + height + ")");
-
-
-// var margin = {top: 15, bottom: 15, left: 50, right: 50},
-//     height = 350,
-//     width = 800;
-
-// var svg = d3.select("body").append("svg");
-
-// svg.attr('height', height + margin.top + margin.bottom)
-//     .attr('width', width + margin.left + margin.right)
-//   .append("g")
-//     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-// svg.append("g")
-//     .attr("class", "x axis")
-//     .attr("transform", "translate(0," + height + ")");
 
 
 
