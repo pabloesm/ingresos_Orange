@@ -61,7 +61,8 @@ var data = [
 
 var duration = 1000,
     providers = true,
-    variation = true;
+    variation = true,
+    text_var_size = 14;
 
 function add_name(d) {
     d.vector = [ {'value': d.orange, 'variation': d.orange_var}, {'value': d.providers, 'variation': d.provdiers_var}];
@@ -200,6 +201,7 @@ var text_circle = trimestre.selectAll("text")
     .attr("x", function(d, i) { return scale_position(i) + scale_position.rangeBand(); })
     .attr("y", function(d) { return scale_cy(d.variation) -  7 - 2; })
     .style("text-anchor", "middle")
+    .style("font-size", text_var_size + "px")
     .text(function(d) { return d.variation; })
     .attr('class', function(d, i) { return which_class(d,i); });
 
@@ -286,7 +288,7 @@ function show_providers() {
 
             svg.selectAll("g.g text.providers")
                 .transition().duration(duration)
-                .style("font-size", "10px");
+                .style("font-size", text_var_size + "px");
         }
 
         update_bars_orange();
@@ -318,7 +320,7 @@ function show_variation() {
 
     svg.selectAll("g.g text.orange")
         .transition().duration(duration)
-        .style("font-size", "10px");
+        .style("font-size", text_var_size + "px");
 
     if (providers) {
         svg.selectAll("g")
@@ -328,7 +330,7 @@ function show_variation() {
 
         svg.selectAll("g.g text.providers")
         .transition().duration(duration)
-        .style("font-size", "10px");
+        .style("font-size", text_var_size + "px");
     }
 }
 
