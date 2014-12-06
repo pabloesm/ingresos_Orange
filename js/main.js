@@ -77,7 +77,7 @@ var margin = {top: 15, bottom: 50, left: 50, right: 50},
     height = 350,
     width = 800;
 
-var svg = d3.select("body").append("svg")
+var svg = d3.select("div.plot").append("svg")
     .attr('height', height + margin.top + margin.bottom)
     .attr('width', width + margin.left + margin.right)
   .append("g")
@@ -171,11 +171,16 @@ var bars = trimestre.selectAll("rect")
     .data(function(d) { return d.vector; })
   .enter().append("rect")
     .attr("width", scale_position.rangeBand())
-    .attr('height', function(d) { return scale_height(d.value); })
+    .attr('height', 0)
     .attr("x", function(d, i) { return scale_position(i); })
-    .attr("y", function(d) { return height - scale_height(d.value); })
+    .attr("y", height)
     .attr('fill', function(d, i) { return scale_color(i); })
-    .attr('class', function(d, i) { return which_class(d, i); });
+    .attr('class', function(d, i) { return which_class(d, i); })
+    .transition()
+    .ease("linear")
+    .duration(function(d) { return scale_height(d.value) * 5; })
+    .attr('height', function(d) { return scale_height(d.value); })
+    .attr("y", function(d) { return height - scale_height(d.value); });
 
 function which_class(d, i) {
     if (i === 0) {
@@ -191,9 +196,11 @@ var points = trimestre.selectAll("circle")
   .enter().append("circle")
     .attr("cx", function(d, i) { return scale_position(i) + scale_position.rangeBand(); })
     .attr("cy", function(d) { return scale_cy(d.variation); })
-    .attr("r", 7)
+    .attr("r", 0)
     .attr('fill', "#777777")
-    .attr('class', function(d, i) { return which_class(d,i); });
+    .attr('class', function(d, i) { return which_class(d,i); })
+    .transition().duration(duration)
+    .attr("r", 7);
 
 var text_circle = trimestre.selectAll("text")
     .data(function(d) { return d.vector; })
@@ -201,9 +208,11 @@ var text_circle = trimestre.selectAll("text")
     .attr("x", function(d, i) { return scale_position(i) + scale_position.rangeBand(); })
     .attr("y", function(d) { return scale_cy(d.variation) -  7 - 2; })
     .style("text-anchor", "middle")
-    .style("font-size", text_var_size + "px")
+    .style("font-size", "0px")
     .text(function(d) { return d.variation; })
-    .attr('class', function(d, i) { return which_class(d,i); });
+    .attr('class', function(d, i) { return which_class(d,i); })
+    .transition().duration(duration)
+    .style("font-size", text_var_size + "px");
 
 function get_variation(circle_data) {
     return circle_data.variation;
@@ -336,7 +345,7 @@ function show_variation() {
 
 
 $(document).ready(function() {
-    $( "rect" ).tipsy({
+    $("rect.orange, rect.providers").tipsy({
         gravity: 's',
         html: true,
         title: function() {

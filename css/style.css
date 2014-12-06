@@ -20,3 +20,23 @@ body {
 #canvas {
   position: relative;
 }
+
+.UI_and_plot {
+	margin: 0 auto;
+  	width: 900px;
+}
+
+.title {
+	margin: 0 auto;
+  	width: 900px;
+  	padding-bottom: 10px;
+  	padding-top: 15px;
+  	border-bottom: solid;
+  	border-width: 1px;
+  	margin-bottom: 5px;
+}
+
+.title span {
+	font-size: 22px;
+}
+

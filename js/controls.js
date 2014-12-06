@@ -4,7 +4,7 @@ var margin = {top: 15, bottom: 10, left: 5, right: 50},
     separation = 25;
 
 
-var svg_controls = d3.select("body").append("svg")
+var svg_controls = d3.select("div.UI").append("svg")
     .attr('height', height + margin.top + margin.bottom)
     .attr('width', width + margin.left + margin.right)
     .append("g")
@@ -54,8 +54,6 @@ legend.append("text")
     .style("text-anchor", "left")
     .style("font-size", "14px")
     .text("Variación interanual");
-
-
 
 svg_controls.append("foreignObject")
     .attr('x', 0)
