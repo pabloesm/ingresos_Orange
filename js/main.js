@@ -127,7 +127,8 @@ svg.append("g")
 
 
 var scale_xAxis = d3.scale.ordinal()
-    .domain(['I Trimestre', 'II Trimestre', 'III Trimestre', 'IV Trimestre', 'I Trimestre ', 'II Trimestre ', 'III Trimestre ', 'IV Trimestre ',])
+    .domain(['I Trimestre 2012', 'II Trimestre 2012', 'III Trimestre 2012', 'IV Trimestre 2012',
+        'I Trimestre 2013', 'II Trimestre 2013', 'III Trimestre 2013', 'IV Trimestre 2013',])
     .rangeRoundBands([0, width], 0.1);
 
 var xAxis = d3.svg.axis()
@@ -137,21 +138,9 @@ var xAxis = d3.svg.axis()
 svg.append("g")
     .attr("class", "x axis")
     .attr("transform", "translate(0," + height + ")")
-    .call(xAxis);
-
-
-var scale_xAxis_2 = d3.scale.ordinal()
-    .domain(['2012', ' 2012 ', '  2012  ', '   2012   ', '2013', ' 2013 ', '  2013  ', '   2013   ',])
-    .rangeRoundBands([0, width], 0.1);
-
-var xAxis_2 = d3.svg.axis()
-    .scale(scale_xAxis_2)
-    .orient("bottom");
-
-svg.append("g")
-    .attr("class", "x axis")
-    .attr("transform", "translate(0," + String(height + 14) + ")")
-    .call(xAxis_2);
+    .call(xAxis)
+  .selectAll(".tick text")
+    .call(wrap, scale_pos_groups.rangeBand());
 
 svg.selectAll(".tick line").attr("y2", 0)
 
@@ -341,6 +330,31 @@ function show_variation() {
         .transition().duration(duration)
         .style("font-size", text_var_size + "px");
     }
+}
+
+
+function wrap(text, width) {
+    text.each(function() {
+        var text = d3.select(this),
+        words = text.text().split(/\s+/).reverse(),
+        word,
+        line = [],
+        lineNumber = 0,
+        lineHeight = 1.1, // ems
+        y = text.attr("y"),
+        dy = parseFloat(text.attr("dy")),
+        tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
+        while (word = words.pop()) {
+            line.push(word);
+            tspan.text(line.join(" "));
+            if (tspan.node().getComputedTextLength() > width) {
+                line.pop();
+                tspan.text(line.join(" "));
+                line = [word];
+                tspan = text.append("tspan").attr("x", 0).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+            }
+        }
+    });
 }
 
 

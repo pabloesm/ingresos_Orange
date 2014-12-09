@@ -8,7 +8,25 @@ var svg_controls = d3.select("div.UI").append("svg")
     .attr('height', height + margin.top + margin.bottom)
     .attr('width', width + margin.left + margin.right)
     .append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+    .attr("class", "checkbox")
+    .attr("transform", translation());
+
+function translation() {
+    var isOpera = !!window.opera || navigator.userAgent.indexOf(' OPR/') >= 0;
+    // Opera 8.0+ (UA detection to detect Blink/v8-powered Opera)
+    var isFirefox = typeof InstallTrigger !== 'undefined';   // Firefox 1.0+
+    var isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Constructor') > 0;
+        // At least Safari 3+: "[object HTMLElementConstructor]"
+    var isChrome = !!window.chrome && !isOpera;              // Chrome 1+
+    var isIE = /*@cc_on!@*/false || !!document.documentMode; // At least IE6
+
+    if (isChrome | isSafari) {
+        return "translate(" + margin.left + "," + 25 + ")";
+    } else {
+        return "translate(" + margin.left + "," + margin.top + ")";
+    }
+
+}
 
 var legend = d3.select("svg").append("g")
     .attr("class", "legend")
